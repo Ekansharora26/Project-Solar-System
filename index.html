@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cosmos3D - Solar System Explorer</title>
+    <meta name="description" content="A premium 3D Solar System simulation using Three.js." />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+  </head>
+  <body>
+    <div id="loading-screen">
+      <div class="loader-content">
+        <div class="ring-spinner"></div>
+        <h2>Initializing Cosmos Explorer</h2>
+        <p>Syncing with interplanetary data networks...</p>
+      </div>
+    </div>
+
+    <div id="app">
+      <!-- Scroll Journey Container -->
+      <div id="scroll-container">
+        <section class="scroll-section" id="section-sun"><h2>The Source</h2></section>
+        <section class="scroll-section" id="section-mercury"><h2>Fastest Orbit</h2></section>
+        <section class="scroll-section" id="section-venus"><h2>Hottest Surface</h2></section>
+        <section class="scroll-section" id="section-earth"><h2>Our Home</h2></section>
+        <section class="scroll-section" id="section-mars"><h2>The Red Planet</h2></section>
+        <section class="scroll-section" id="section-jupiter"><h2>King of Planets</h2></section>
+        <section class="scroll-section" id="section-saturn"><h2>Ringed Giant</h2></section>
+        <section class="scroll-section" id="section-uranus"><h2>Ice Giant</h2></section>
+        <section class="scroll-section" id="section-neptune"><h2>Farthest Reach</h2></section>
+      </div>
+
+      <div id="canvas-container"></div>
+      
+      <!-- UI Overlay -->
+      <div id="ui-container">
+        <header>
+          <h1>Cosmos<span>3D</span></h1>
+          <p>Solar System Simulation</p>
+        </header>
+
+        <div id="planet-info" class="glass-panel info-panel hidden">
+          <h2 id="info-name">Earth</h2>
+          <div class="stats-grid">
+            <div class="stat">
+              <span class="label">Radius</span>
+              <span class="value" id="info-radius">6,371 km</span>
+            </div>
+            <div class="stat">
+              <span class="label">Dist. to Sun</span>
+              <span class="value" id="info-distance">149.6M km</span>
+            </div>
+            <div class="stat">
+              <span class="label">Orbital Period</span>
+              <span class="value" id="info-orbit">365 Days</span>
+            </div>
+            <div class="stat">
+              <span class="label">Day Length</span>
+              <span class="value" id="info-day">24h</span>
+            </div>
+          </div>
+          <p id="info-desc">Our home planet is the only place we know of so far that’s inhabited by living things.</p>
+          <button id="close-info" class="btn-clear">Back to System View</button>
+        </div>
+
+        <div class="controls-panel glass-panel">
+          <h3>System Controls</h3>
+          <div class="control-group">
+            <label class="switch">
+              <input type="checkbox" id="toggle-orbits" checked>
+              <span class="slider"></span>
+            </label>
+            <span>Orbit Rings</span>
+          </div>
+          <div class="control-group">
+            <label class="switch">
+              <input type="checkbox" id="toggle-labels" checked>
+              <span class="slider"></span>
+            </label>
+            <span>Planet Labels</span>
+          </div>
+          
+          <div class="control-group">
+            <label class="switch">
+              <input type="checkbox" id="toggle-cinematic">
+              <span class="slider"></span>
+            </label>
+            <span>Cinematic Mode</span>
+          </div>
+          
+          <div class="speed-control">
+            <span class="label">Simulation Speed</span>
+            <div class="speed-btns">
+              <button class="speed-btn" data-speed="0.1">Slow</button>
+              <button class="speed-btn active" data-speed="1">Real</button>
+              <button class="speed-btn" data-speed="10">Fast</button>
+            </div>
+          </div>
+        </div>
+
+        <div id="tooltip" class="tooltip">
+          <span id="tooltip-text">Earth</span>
+        </div>
+
+        <footer>
+          <p>Crafted by Antigravity AI • Solar System Engine v2.0</p>
+        </footer>
+      </div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
