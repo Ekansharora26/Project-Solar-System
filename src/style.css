@@ -131,7 +131,7 @@ header p {
 .info-panel {
   width: 320px;
   margin-bottom: 24px;
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   opacity: 1;
   transform: translateX(0);
 }
@@ -402,4 +402,73 @@ footer p {
   #ui-container {
     padding: 20px;
   }
+}
+
+/* Planet Selector Panel */
+#planet-selector {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  opacity: 0;
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px;
+  max-width: 90vw;
+  overflow-x: auto;
+  pointer-events: auto;
+  z-index: 50;
+  /* hide scrollbar */
+  scrollbar-width: none;
+  animation: slideUpFade 1.5s cubic-bezier(0.16, 1, 0.3, 1) 2.5s forwards;
+  /* Keep it locked at bottom once animation finishes */
+}
+
+@keyframes slideUpFade {
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-40px);
+  }
+}
+
+#planet-selector::-webkit-scrollbar {
+  display: none;
+}
+
+.planet-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-secondary);
+  padding: 10px 20px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: var(--font-title);
+  font-weight: 600;
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+.planet-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: scale(1.05) translateY(-4px);
+  color: white;
+}
+
+.planet-btn.active {
+  background: var(--secondary-color);
+  color: white;
+  border-color: var(--secondary-color);
+  box-shadow: 0 5px 20px rgba(0, 136, 255, 0.4);
+  transform: translateY(-4px);
+}
+
+.planet-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
 }

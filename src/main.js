@@ -65,7 +65,7 @@ class SolarSystemApp {
 
         this.raycaster = new THREE.Raycaster();
         this.mouse = new THREE.Vector2();
-        
+
         this.focusedObject = null;
         this.hoveredObject = null;
         this.simulationSpeed = 1;
@@ -86,11 +86,11 @@ class SolarSystemApp {
         this.createPlanets();
         this.setupPostProcessing();
         this.setupEventListeners();
-        
+        this.createPlanetPanel(); //s
+
         // Staggered Entry Animation
         this.initPlanetsEntry();
-        this.setupScrollAnimation();
-        
+
         this.animate();
     }
 
@@ -102,10 +102,12 @@ class SolarSystemApp {
         this.animateShootingStars();
 
         THREE.DefaultLoadingManager.onLoad = () => {
-            gsap.to('#loading-screen', { opacity: 0, duration: 1.5, delay: 0.5, onComplete: () => {
-                document.getElementById('loading-screen').style.display = 'none';
-                this.initIntroAnimation();
-            }});
+            gsap.to('#loading-screen', {
+                opacity: 0, duration: 1.5, delay: 0.5, onComplete: () => {
+                    document.getElementById('loading-screen').style.display = 'none';
+                    this.initIntroAnimation();
+                }
+            });
         };
     }
 
@@ -117,13 +119,13 @@ class SolarSystemApp {
         const sizes = new Float32Array(particleCount);
 
         for (let i = 0; i < particleCount; i++) {
-            positions[i*3] = (Math.random() - 0.5) * 8000;
-            positions[i*3+1] = (Math.random() - 0.5) * 8000;
-            positions[i*3+2] = (Math.random() - 0.5) * 8000;
+            positions[i * 3] = (Math.random() - 0.5) * 8000;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 8000;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 8000;
             phases[i] = Math.random() * Math.PI * 2;
             sizes[i] = Math.random() * 2 + 0.5;
         }
-        
+
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
         geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
         geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
@@ -174,9 +176,9 @@ class SolarSystemApp {
         const phases = new Float32Array(dustCount);
 
         for (let i = 0; i < dustCount; i++) {
-            positions[i*3] = (Math.random() - 0.5) * 3000; // Tighter cluster
-            positions[i*3+1] = (Math.random() - 0.5) * 3000;
-            positions[i*3+2] = (Math.random() - 0.5) * 3000;
+            positions[i * 3] = (Math.random() - 0.5) * 3000; // Tighter cluster
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 3000;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 3000;
             phases[i] = Math.random() * Math.PI * 2;
         }
 
@@ -225,17 +227,17 @@ class SolarSystemApp {
         const colors = new Float32Array(particleCount * 3);
 
         // Core to Edge color gradient
-        const colorInside = new THREE.Color(0xffaa88); 
+        const colorInside = new THREE.Color(0xffaa88);
         const colorOutside = new THREE.Color(0x4466ff);
 
         const params = { radius: 4000, spin: 1, randomness: 0.2, randomnessPower: 3, branches: 4 };
 
-        for(let i = 0; i < particleCount; i++) {
+        for (let i = 0; i < particleCount; i++) {
             const i3 = i * 3;
             const radius = Math.random() * params.radius;
             const spinAngle = radius * params.spin;
             const branchAngle = (i % params.branches) / params.branches * Math.PI * 2;
-            
+
             const randomX = Math.pow(Math.random(), params.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * params.randomness * radius;
             const randomY = Math.pow(Math.random(), params.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * params.randomness * radius * 0.2; // Flattened Y
             const randomZ = Math.pow(Math.random(), params.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * params.randomness * radius;
@@ -282,10 +284,10 @@ class SolarSystemApp {
                 (Math.random() - 0.5) * 1000 + 800,
                 (Math.random() - 0.5) * 2000
             );
-            
+
             const endPos = startPos.clone().add(new THREE.Vector3(Math.random() * 1000 - 500, -Math.random() * 500 - 300, Math.random() * 1000 - 500));
             geometry.setAttribute('position', new THREE.Float32BufferAttribute([startPos.x, startPos.y, startPos.z, startPos.x, startPos.y, startPos.z], 3));
-            
+
             const material = new THREE.LineBasicMaterial({
                 color: 0xffffff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending
             });
@@ -293,7 +295,7 @@ class SolarSystemApp {
             this.scene.add(streak);
 
             gsap.to(material, { opacity: 0.8, duration: 0.2, yoyo: true, repeat: 1 });
-            
+
             const positionArray = streak.geometry.attributes.position.array;
             gsap.to(positionArray, {
                 3: endPos.x, 4: endPos.y, 5: endPos.z,
@@ -316,30 +318,30 @@ class SolarSystemApp {
         // Subtle ambient light ensures the "dark sides" of planets and rings are faintly visible
         this.ambientLight = new THREE.AmbientLight(0x222233, 0.4);
         this.scene.add(this.ambientLight);
-        
+
         // Sun PointLight for illumination
         // Decay = 0 guarantees long-distance light doesn't diminish to black
-        this.defaultLightIntensity = 3.5; 
-        this.sunLight = new THREE.PointLight(0xffddaa, this.defaultLightIntensity, 4000, 0); 
+        this.defaultLightIntensity = 3.5;
+        this.sunLight = new THREE.PointLight(0xffddaa, this.defaultLightIntensity, 4000, 0);
         this.sunLight.position.set(0, 0, 0);
         this.sunLight.castShadow = true;
-        
+
         // High-quality shadow map for cinematic feel
         this.sunLight.shadow.mapSize.width = 2048;
         this.sunLight.shadow.mapSize.height = 2048;
         this.sunLight.shadow.camera.near = 10;
         this.sunLight.shadow.camera.far = 4000;
         this.sunLight.shadow.bias = -0.0005; // Prevent shadow acne
-        
+
         this.scene.add(this.sunLight);
     }
 
     createSun() {
         const loader = new THREE.TextureLoader();
         const sunTexture = loader.load(TEXTURES.sun);
-        
+
         const sunGeo = new THREE.SphereGeometry(14, 64, 64);
-        const sunMat = new THREE.MeshStandardMaterial({ 
+        const sunMat = new THREE.MeshStandardMaterial({
             map: sunTexture,
             emissive: 0xffddaa, // Self-illumination color matching light
             emissiveIntensity: 1.5, // Strong glow for bloom
@@ -347,7 +349,7 @@ class SolarSystemApp {
             roughness: 1,
             metalness: 0
         });
-        
+
         this.sun = new THREE.Mesh(sunGeo, sunMat);
         this.scene.add(this.sun);
 
@@ -423,7 +425,7 @@ class SolarSystemApp {
         if (data.hasRings) {
             const ringGeo = new THREE.RingGeometry(data.size * 1.6, data.size * 2.8, 64);
             const ringTex = loader.load(TEXTURES.saturnRing);
-            const ringMat = new THREE.MeshStandardMaterial({ 
+            const ringMat = new THREE.MeshStandardMaterial({
                 map: ringTex, side: THREE.DoubleSide, transparent: true, opacity: 0.9, roughness: 1, metalness: 0
             });
             const rings = new THREE.Mesh(ringGeo, ringMat);
@@ -441,7 +443,7 @@ class SolarSystemApp {
 
     createMoon(earthInfo) {
         const loader = new THREE.TextureLoader();
-        
+
         // Parent moon pivot directly into Earth's non-spinning translational holder
         const moonOrbitPivot = new THREE.Object3D();
         earthInfo.container.add(moonOrbitPivot);
@@ -458,14 +460,14 @@ class SolarSystemApp {
         const geometry = new THREE.SphereGeometry(moonData.size, 32, 32);
         const material = new THREE.MeshStandardMaterial({ map: texture, roughness: 1, metalness: 0 });
         const moonMesh = new THREE.Mesh(geometry, material);
-        
+
         // Slight orbital tilt (approx 5 degrees)
         moonOrbitPivot.rotation.x = Math.PI / 36;
-        
+
         moonMesh.position.set(moonData.distance, 0, 0);
         moonMesh.castShadow = true;
         moonMesh.receiveShadow = true;
-        
+
         // The Moon mesh must be placed in an axial holder so its rotation doesn't wobble
         const moonAxialHolder = new THREE.Object3D();
         moonAxialHolder.position.copy(moonMesh.position);
@@ -523,7 +525,7 @@ class SolarSystemApp {
             duration: 3,
             ease: "power3.inOut"
         }, 0);
-        
+
         this.animateIntroLighting();
     }
 
@@ -550,13 +552,13 @@ class SolarSystemApp {
 
     updateLightingWithCamera() {
         if (!this.sunLight || !this.sun) return;
-        
+
         // Skip dynamic updates if focusing on a planet (handled by GSAP)
         if (this.focusedObject) return;
 
         const dist = this.camera.position.length();
         const normalizedDist = THREE.MathUtils.clamp(1.0 - (dist - 200) / 4000, 0, 1);
-        
+
         // Because decay=0, we don't need wild intensity boosts. Subtle tweaks.
         const targetIntensity = this.defaultLightIntensity * (0.9 + normalizedDist * 0.2);
         this.sunLight.intensity = THREE.MathUtils.lerp(this.sunLight.intensity, targetIntensity, 0.05);
@@ -567,34 +569,34 @@ class SolarSystemApp {
 
         // Light follow effect: subtly offset light toward camera to illuminate dark sides just a bit (cinematic trick)
         const dirToCamera = this.camera.position.clone().normalize();
-        const lightOffset = dirToCamera.multiplyScalar(4); 
+        const lightOffset = dirToCamera.multiplyScalar(4);
         this.sunLight.position.lerp(lightOffset, 0.05);
     }
 
     focusPlanetLighting(obj, isSun) {
         if (isSun) {
-            gsap.to(this.sunLight, { intensity: this.defaultLightIntensity * 1.2, duration: 2, ease: "power2.inOut" });
-            gsap.to(this.renderer, { toneMappingExposure: 1.1, duration: 2, ease: "power2.inOut" });
-            gsap.to(this.sunLight.position, { x: 0, y: 0, z: 0, duration: 2, ease: "power2.inOut" });
+            gsap.to(this.sunLight, { intensity: this.defaultLightIntensity * 1.2, duration: 3, ease: "power3.inOut" });
+            gsap.to(this.renderer, { toneMappingExposure: 1.1, duration: 3, ease: "power3.inOut" });
+            gsap.to(this.sunLight.position, { x: 0, y: 0, z: 0, duration: 3, ease: "power3.inOut" });
             return;
         }
 
         const targetPos = new THREE.Vector3();
         obj.getWorldPosition(targetPos);
-        
+
         // Dim scene slightly to pop the focused planet
-        gsap.to(this.renderer, { toneMappingExposure: 0.85, duration: 2, ease: "power2.inOut" });
-        gsap.to(this.sunLight, { intensity: this.defaultLightIntensity * 0.9, duration: 2, ease: "power2.inOut" });
+        gsap.to(this.renderer, { toneMappingExposure: 0.85, duration: 3, ease: "power3.inOut" });
+        gsap.to(this.sunLight, { intensity: this.defaultLightIntensity * 0.9, duration: 3, ease: "power3.inOut" });
 
         // Offset light towards the planet and slightly towards camera for optimal highlights
         const lightTarget = targetPos.clone().normalize().multiplyScalar(12);
-        
+
         // Add vertical variation for dynamic shadow casting
         lightTarget.y += 2;
 
         gsap.to(this.sunLight.position, {
             x: lightTarget.x, y: lightTarget.y, z: lightTarget.z,
-            duration: 2, ease: "power2.inOut"
+            duration: 3, ease: "power3.inOut"
         });
     }
 
@@ -610,11 +612,12 @@ class SolarSystemApp {
         document.getElementById('info-day').textContent = data.day;
         document.getElementById('info-desc').textContent = data.desc;
         document.getElementById('planet-info').classList.remove('hidden');
+        this.updateActivePlanetUI();
 
         // Cinematic background dimming & time dilation
-        gsap.to(this.ambientLight, { intensity: 0.05, duration: 2 });
-        gsap.to(this, { simulationSpeed: 0.05, duration: 2, ease: "power2.inOut" });
-        
+        gsap.to(this.ambientLight, { intensity: 0.05, duration: 3, ease: "power3.inOut" });
+        gsap.to(this, { simulationSpeed: 0.05, duration: 3, ease: "power3.inOut" });
+
         // Enable slow cinematic orbit around the focused target
         this.controls.autoRotate = true;
         this.controls.autoRotateSpeed = 0.8;
@@ -622,70 +625,27 @@ class SolarSystemApp {
         const targetPos = new THREE.Vector3();
         obj.getWorldPosition(targetPos);
         const radius = isSun ? 14 : data.size;
-        
+
         // Calculate cinematic offset angle
         const dirFromSun = targetPos.clone().normalize();
         if (isSun) dirFromSun.set(1, 0.5, 1).normalize();
-        
+
         const offsetDist = radius * 5;
         const camPos = targetPos.clone().add(dirFromSun.multiplyScalar(offsetDist));
         // Add slightly up and precise offset for dramatic angle
         camPos.y += radius * 1.5;
-        camPos.applyAxisAngle(new THREE.Vector3(0,1,0), Math.PI / 8);
+        camPos.applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.PI / 8);
 
         gsap.to(this.camera.position, {
             x: camPos.x, y: camPos.y, z: camPos.z,
-            duration: 2, ease: "power2.inOut"
+            duration: 3, ease: "power3.inOut"
         });
         gsap.to(this.controls.target, {
             x: targetPos.x, y: targetPos.y, z: targetPos.z,
-            duration: 2, ease: "power2.inOut"
+            duration: 3, ease: "power3.inOut"
         });
 
         this.focusPlanetLighting(obj, isSun);
-    }
-
-    setupScrollAnimation() {
-        const sections = document.querySelectorAll('.scroll-section');
-        const targets = [this.sun, ...this.planets.map(p => p.mesh)];
-        
-        sections.forEach((section, index) => {
-            ScrollTrigger.create({
-                trigger: section,
-                start: "top center",
-                end: "bottom center",
-                onEnter: () => this.goToPlanet(targets[index]),
-                onEnterBack: () => this.goToPlanet(targets[index])
-            });
-        });
-
-        // Set isStoryMode when scrolling past first section
-        ScrollTrigger.create({
-            trigger: "#scroll-container",
-            start: "top top",
-            onToggle: self => {
-                this.isStoryMode = self.isActive;
-                if (!self.isActive) this.resetView();
-            }
-        });
-    }
-
-    goToPlanet(obj) {
-        if (!obj) return;
-        this.focusedObject = obj;
-        const pos = new THREE.Vector3();
-        obj.getWorldPosition(pos);
-        const size = obj === this.sun ? 14 : obj.userData.size;
-        
-        gsap.to(this.camera.position, {
-            x: pos.x + size * 6,
-            y: size * 3,
-            z: pos.z + size * 6,
-            duration: 1.5,
-            ease: "power2.inOut"
-        });
-
-        this.focusPlanetLighting(obj, obj === this.sun);
     }
 
     toggleCinematicMode(enabled) {
@@ -702,17 +662,18 @@ class SolarSystemApp {
         this.focusedObject = null;
         this.controls.autoRotate = false; // Disable individual object panning
         document.getElementById('planet-info').classList.add('hidden');
-        
+        this.updateActivePlanetUI();
+
         // Recover original distances and lighting
-        gsap.to(this.camera.position, { x: 0, y: 180, z: 450, duration: 2 });
-        gsap.to(this.controls.target, { x: 0, y: 0, z: 0, duration: 2 });
-        gsap.to(this.ambientLight, { intensity: 0.4, duration: 2 });
-        gsap.to(this.renderer, { toneMappingExposure: 1.0, duration: 2 });
-        
+        gsap.to(this.camera.position, { x: 0, y: 180, z: 450, duration: 3, ease: "power3.inOut" });
+        gsap.to(this.controls.target, { x: 0, y: 0, z: 0, duration: 3, ease: "power3.inOut" });
+        gsap.to(this.ambientLight, { intensity: 0.4, duration: 3, ease: "power3.inOut" });
+        gsap.to(this.renderer, { toneMappingExposure: 1.0, duration: 3, ease: "power3.inOut" });
+
         // Restore appropriate simulation speed based on current UI toggle state
         const activeBtn = document.querySelector('.speed-btn.active');
         const targetSpeed = activeBtn ? parseFloat(activeBtn.dataset.speed) : 1.0;
-        gsap.to(this, { simulationSpeed: targetSpeed, duration: 2, ease: "power2.inOut" });
+        gsap.to(this, { simulationSpeed: targetSpeed, duration: 3, ease: "power3.inOut" });
     }
 
     setupEventListeners() {
@@ -751,6 +712,43 @@ class SolarSystemApp {
                     this.simulationSpeed = parseFloat(btn.dataset.speed);
                 }
             });
+        });
+    }
+
+    createPlanetPanel() {
+        const container = document.getElementById('planet-selector');
+        if (!container) return;
+
+        PLANETS_DATA.forEach(data => {
+            const btn = document.createElement('button');
+            btn.className = 'planet-btn';
+            btn.dataset.planet = data.name;
+
+            const hexColor = '#' + data.color.toString(16).padStart(6, '0');
+
+            btn.innerHTML = `
+                <span class="planet-icon" style="background: ${hexColor}; box-shadow: 0 0 5px ${hexColor}"></span>
+                ${data.name}
+            `;
+
+            btn.addEventListener('click', () => this.handlePlanetClick(data.name));
+            container.appendChild(btn);
+        });
+    }
+
+    handlePlanetClick(name) {
+        if (this.cinematicMode) return;
+        const targetObj = this.planets.find(p => p.data.name === name)?.mesh;
+        if (targetObj) this.focusPlanet(targetObj);
+    }
+
+    updateActivePlanetUI() {
+        document.querySelectorAll('.planet-btn').forEach(btn => {
+            if (this.focusedObject && this.focusedObject.userData && this.focusedObject.userData.name === btn.dataset.planet) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
         });
     }
 
@@ -795,12 +793,12 @@ class SolarSystemApp {
         const delta = this.clock.getDelta() * this.simulationSpeed;
 
         // Keplerian Orbit Evaluation
-        const maxDelta = Math.min(delta, 0.1); 
+        const maxDelta = Math.min(delta, 0.1);
 
         this.planets.forEach(p => {
             // Apply Kepler's law calculated travel around the sun
             p.pivot.rotation.y -= p.data.calculatedSpeed * maxDelta * 0.1;
-            
+
             // Apply unique axial rotation (Spinning very clearly to visualize day/night)
             p.mesh.rotation.y += p.data.rotation * maxDelta * 50;
         });
@@ -813,7 +811,7 @@ class SolarSystemApp {
             // Moon orbits Earth (independent of Earth's spin because it's attached to the axialHolder, not the Earth mesh)
             this.moon.pivot.rotation.y -= this.moon.data.speed * maxDelta;
             // Moon spins on its own axis
-            this.moon.mesh.rotation.y += this.moon.data.rotation * maxDelta * 50; 
+            this.moon.mesh.rotation.y += this.moon.data.rotation * maxDelta * 50;
         }
 
         // Follow focused object
@@ -839,10 +837,10 @@ class SolarSystemApp {
         // Particle System Dynamics (Twinkling, Drifting, and Mouse Parallax)
         if (this.starMat) this.starMat.uniforms.time.value += delta;
         if (this.dustMat) this.dustMat.uniforms.time.value += delta;
-        
+
         const parallaxX = this.mouse.x * 30;
         const parallaxY = this.mouse.y * 30;
-        
+
         if (this.particleGroups) {
             this.particleGroups.forEach((group, index) => {
                 const depthFactor = (index + 1) * 0.15;

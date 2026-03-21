@@ -20,19 +20,6 @@
     </div>
 
     <div id="app">
-      <!-- Scroll Journey Container -->
-      <div id="scroll-container">
-        <section class="scroll-section" id="section-sun"></section>
-        <section class="scroll-section" id="section-mercury"></section>
-        <section class="scroll-section" id="section-venus"></section>
-        <section class="scroll-section" id="section-earth"></section>
-        <section class="scroll-section" id="section-mars"></section>
-        <section class="scroll-section" id="section-jupiter"></section>
-        <section class="scroll-section" id="section-saturn"></section>
-        <section class="scroll-section" id="section-uranus"></section>
-        <section class="scroll-section" id="section-neptune"></section>
-      </div>
-
       <div id="canvas-container"></div>
       
       <!-- UI Overlay -->
@@ -63,6 +50,10 @@
           </div>
           <p id="info-desc">Our home planet is the only place we know of so far that’s inhabited by living things.</p>
           <button id="close-info" class="btn-clear">Back to System View</button>
+        </div>
+
+        <div id="planet-selector" class="glass-panel">
+          <!-- Dynamically populated via JS -->
         </div>
 
         <div class="controls-panel glass-panel">
