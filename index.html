@@ -22,15 +22,15 @@
     <div id="app">
       <!-- Scroll Journey Container -->
       <div id="scroll-container">
-        <section class="scroll-section" id="section-sun"><h2>The Source</h2></section>
-        <section class="scroll-section" id="section-mercury"><h2>Fastest Orbit</h2></section>
-        <section class="scroll-section" id="section-venus"><h2>Hottest Surface</h2></section>
-        <section class="scroll-section" id="section-earth"><h2>Our Home</h2></section>
-        <section class="scroll-section" id="section-mars"><h2>The Red Planet</h2></section>
-        <section class="scroll-section" id="section-jupiter"><h2>King of Planets</h2></section>
-        <section class="scroll-section" id="section-saturn"><h2>Ringed Giant</h2></section>
-        <section class="scroll-section" id="section-uranus"><h2>Ice Giant</h2></section>
-        <section class="scroll-section" id="section-neptune"><h2>Farthest Reach</h2></section>
+        <section class="scroll-section" id="section-sun"></section>
+        <section class="scroll-section" id="section-mercury"></section>
+        <section class="scroll-section" id="section-venus"></section>
+        <section class="scroll-section" id="section-earth"></section>
+        <section class="scroll-section" id="section-mars"></section>
+        <section class="scroll-section" id="section-jupiter"></section>
+        <section class="scroll-section" id="section-saturn"></section>
+        <section class="scroll-section" id="section-uranus"></section>
+        <section class="scroll-section" id="section-neptune"></section>
       </div>
 
       <div id="canvas-container"></div>
@@ -39,7 +39,6 @@
       <div id="ui-container">
         <header>
           <h1>Cosmos<span>3D</span></h1>
-          <p>Solar System Simulation</p>
         </header>
 
         <div id="planet-info" class="glass-panel info-panel hidden">
@@ -77,14 +76,6 @@
           </div>
           <div class="control-group">
             <label class="switch">
-              <input type="checkbox" id="toggle-labels" checked>
-              <span class="slider"></span>
-            </label>
-            <span>Planet Labels</span>
-          </div>
-          
-          <div class="control-group">
-            <label class="switch">
               <input type="checkbox" id="toggle-cinematic">
               <span class="slider"></span>
             </label>
@@ -104,10 +95,6 @@
         <div id="tooltip" class="tooltip">
           <span id="tooltip-text">Earth</span>
         </div>
-
-        <footer>
-          <p>Crafted by Antigravity AI • Solar System Engine v2.0</p>
-        </footer>
       </div>
     </div>
     <script type="module" src="/src/main.js"></script>

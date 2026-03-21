@@ -110,7 +110,7 @@ class SolarSystemApp {
     }
 
     createStarfield() {
-        const particleCount = 15000;
+        const particleCount = 4000;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(particleCount * 3);
         const phases = new Float32Array(particleCount);
@@ -611,6 +611,14 @@ class SolarSystemApp {
         document.getElementById('info-desc').textContent = data.desc;
         document.getElementById('planet-info').classList.remove('hidden');
 
+        // Cinematic background dimming & time dilation
+        gsap.to(this.ambientLight, { intensity: 0.05, duration: 2 });
+        gsap.to(this, { simulationSpeed: 0.05, duration: 2, ease: "power2.inOut" });
+        
+        // Enable slow cinematic orbit around the focused target
+        this.controls.autoRotate = true;
+        this.controls.autoRotateSpeed = 0.8;
+
         const targetPos = new THREE.Vector3();
         obj.getWorldPosition(targetPos);
         const radius = isSun ? 14 : data.size;
@@ -692,9 +700,19 @@ class SolarSystemApp {
 
     resetView() {
         this.focusedObject = null;
+        this.controls.autoRotate = false; // Disable individual object panning
         document.getElementById('planet-info').classList.add('hidden');
+        
+        // Recover original distances and lighting
         gsap.to(this.camera.position, { x: 0, y: 180, z: 450, duration: 2 });
         gsap.to(this.controls.target, { x: 0, y: 0, z: 0, duration: 2 });
+        gsap.to(this.ambientLight, { intensity: 0.4, duration: 2 });
+        gsap.to(this.renderer, { toneMappingExposure: 1.0, duration: 2 });
+        
+        // Restore appropriate simulation speed based on current UI toggle state
+        const activeBtn = document.querySelector('.speed-btn.active');
+        const targetSpeed = activeBtn ? parseFloat(activeBtn.dataset.speed) : 1.0;
+        gsap.to(this, { simulationSpeed: targetSpeed, duration: 2, ease: "power2.inOut" });
     }
 
     setupEventListeners() {
@@ -729,7 +747,9 @@ class SolarSystemApp {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                this.simulationSpeed = parseFloat(btn.dataset.speed);
+                if (!this.focusedObject) { // Prevents overriding the cinematic slow-down if a planet is actively focused
+                    this.simulationSpeed = parseFloat(btn.dataset.speed);
+                }
             });
         });
     }
