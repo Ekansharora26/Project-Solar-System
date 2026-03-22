@@ -21,7 +21,8 @@ const files = [
   { name: "saturn_ring.png", url: "https://www.solarsystemscope.com/textures/download/2k_saturn_ring_alpha.png" },
   { name: "uranus.jpg", url: "https://www.solarsystemscope.com/textures/download/2k_uranus.jpg" },
   { name: "neptune.jpg", url: "https://www.solarsystemscope.com/textures/download/2k_neptune.jpg" },
-  { name: "stars.jpg", url: "https://www.solarsystemscope.com/textures/download/2k_stars_milky_way.jpg" } // added stars just in case
+  { name: "stars.jpg",        url: "https://www.solarsystemscope.com/textures/download/2k_stars_milky_way.jpg" },
+  { name: "milkyway.jpg",     url: "https://www.solarsystemscope.com/textures/download/8k_stars_milky_way.jpg" }
 ];
 
 const downloadFile = (url, dest) => {

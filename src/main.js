@@ -9,19 +9,20 @@ import './mobile.css';
 
 // --- CONFIGURATION ---
 const TEXTURES = {
-    sun: '/textures/sun.jpg',
-    mercury: '/textures/mercury.jpg',
-    venus: '/textures/venus.jpg',
-    earth: '/textures/earth_day.jpg',
+    sun:        '/textures/sun.jpg',
+    mercury:    '/textures/mercury.jpg',
+    venus:      '/textures/venus.jpg',
+    earth:      '/textures/earth_day.jpg',
     earthNight: '/textures/earth_night.jpg',
-    mars: '/textures/mars.jpg',
-    jupiter: '/textures/jupiter.jpg',
-    saturn: '/textures/saturn.jpg',
+    mars:       '/textures/mars.jpg',
+    jupiter:    '/textures/jupiter.jpg',
+    saturn:     '/textures/saturn.jpg',
     saturnRing: '/textures/saturn_ring.png',
-    uranus: '/textures/uranus.jpg',
-    neptune: '/textures/neptune.jpg',
-    moon: '/textures/moon.jpg',
-    stars: '/textures/stars.jpg'
+    uranus:     '/textures/uranus.jpg',
+    neptune:    '/textures/neptune.jpg',
+    moon:       '/textures/moon.jpg',
+    stars:      '/textures/stars.jpg',
+    milkyway:   '/textures/milkyway.jpg'
 };
 
 const PLANETS_DATA = [
@@ -94,9 +95,9 @@ class SolarSystemApp {
 
     setupBackground() {
         this.particleGroups = [];
-        this.createStarfield();
-        this.createSpaceDust();
-        this.createGalaxy();
+        this.createMilkyWayLayer();  // [0] Far  — real 8K sphere, slowest
+        this.createMidStarLayer();   // [1] Mid  — dense cool stars, medium
+        this.createNearStarLayer();  // [2] Near — bright twinkling, fastest
         this.animateShootingStars();
 
         THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
@@ -122,164 +123,197 @@ class SolarSystemApp {
         };
     }
 
-    createStarfield() {
-        const particleCount = 4000;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const phases = new Float32Array(particleCount);
-        const sizes = new Float32Array(particleCount);
+    // ─── Generate a soft radial glow star sprite via Canvas ───
+    // Replaces external PNG — same effect, zero network dependency
+    generateStarSprite(innerColor = [1,1,1], outerColor = [0.55,0.7,1], size = 128) {
+        const canvas = document.createElement('canvas');
+        canvas.width  = size;
+        canvas.height = size;
+        const ctx = canvas.getContext('2d');
+        const c = size / 2;
 
-        for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 8000;
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 8000;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 8000;
+        // Core bright point
+        const core = ctx.createRadialGradient(c, c, 0, c, c, c * 0.12);
+        core.addColorStop(0,   `rgba(255,255,255,1)`);
+        core.addColorStop(1,   `rgba(255,255,255,0)`);
+        ctx.fillStyle = core;
+        ctx.fillRect(0, 0, size, size);
+
+        // Soft glow halo
+        const [r2,g2,b2] = outerColor.map(v => Math.round(v*255));
+        const glow = ctx.createRadialGradient(c, c, 0, c, c, c);
+        glow.addColorStop(0.0,  `rgba(255,255,255,0.95)`);
+        glow.addColorStop(0.06, `rgba(${Math.round(innerColor[0]*255)},${Math.round(innerColor[1]*255)},${Math.round(innerColor[2]*255)},0.8)`);
+        glow.addColorStop(0.25, `rgba(${r2},${g2},${b2},0.35)`);
+        glow.addColorStop(0.55, `rgba(${r2},${g2},${b2},0.08)`);
+        glow.addColorStop(1.0,  `rgba(0,0,0,0)`);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = glow;
+        ctx.fillRect(0, 0, size, size);
+
+        // Optional 4-point diffraction spike (makes bright stars look real)
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.strokeStyle = `rgba(255,255,255,0.18)`;
+        ctx.lineWidth   = 1;
+        [[c,0,c,size],[0,c,size,c]].forEach(([x1,y1,x2,y2]) => {
+            const spike = ctx.createLinearGradient(x1,y1,x2,y2);
+            spike.addColorStop(0,   'rgba(255,255,255,0)');
+            spike.addColorStop(0.45,'rgba(255,255,255,0.22)');
+            spike.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+            spike.addColorStop(0.55,'rgba(255,255,255,0.22)');
+            spike.addColorStop(1,   'rgba(255,255,255,0)');
+            ctx.strokeStyle = spike;
+            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        });
+
+        return new THREE.CanvasTexture(canvas);
+    }
+
+    // ── Layer 2: Near bright twinkling stars (fastest parallax) ──
+    createNearStarLayer() {
+        const count = 3500;
+        const geometry = new THREE.BufferGeometry();
+        const positions = new Float32Array(count * 3);
+        const phases    = new Float32Array(count);
+        const sizes     = new Float32Array(count);
+
+        for (let i = 0; i < count; i++) {
+            positions[i * 3]     = (Math.random() - 0.5) * 7000;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 7000;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 7000;
             phases[i] = Math.random() * Math.PI * 2;
-            sizes[i] = Math.random() * 2 + 0.5;
+            sizes[i]  = Math.random() * 2.2 + 0.6;
         }
 
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
-        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+        geometry.setAttribute('phase',    new THREE.BufferAttribute(phases,    1));
+        geometry.setAttribute('size',     new THREE.BufferAttribute(sizes,     1));
+
+        // Warm white star sprite (near stars = older, hotter, yellow-white)
+        const nearSprite = this.generateStarSprite([1,0.97,0.88], [0.6,0.7,1.0], 128);
 
         this.starMat = new THREE.ShaderMaterial({
-            uniforms: { time: { value: 0 } },
+            uniforms: {
+                time:        { value: 0 },
+                starTexture: { value: nearSprite }
+            },
             vertexShader: `
                 uniform float time;
                 attribute float phase;
                 attribute float size;
                 varying float vAlpha;
                 void main() {
-                    vAlpha = 0.5 + 0.5 * sin(time * 2.0 + phase); // Twinkling effect
-                    
-                    // Add organic, sweeping cosmic drift
+                    vAlpha = 0.5 + 0.5 * sin(time * 2.0 + phase);
                     vec3 pos = position;
-                    pos.x += sin(time * 0.05 + phase) * 400.0;
-                    pos.y += cos(time * 0.03 + phase) * 400.0;
-                    pos.z += sin(time * 0.04 - phase) * 400.0;
-                    
-                    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                    gl_PointSize = size * (300.0 / -mvPosition.z);
-                    gl_Position = projectionMatrix * mvPosition;
+                    pos.x += sin(time * 0.05 + phase) * 300.0;
+                    pos.y += cos(time * 0.03 + phase) * 300.0;
+                    pos.z += sin(time * 0.04 - phase) * 300.0;
+                    vec4 mvPos = modelViewMatrix * vec4(pos, 1.0);
+                    gl_PointSize = size * (320.0 / -mvPos.z);
+                    gl_Position  = projectionMatrix * mvPos;
                 }
             `,
             fragmentShader: `
+                uniform sampler2D starTexture;
                 varying float vAlpha;
                 void main() {
-                    float dist = length(gl_PointCoord - vec2(0.5));
-                    if (dist > 0.5) discard; // Smooth circular point
-                    gl_FragColor = vec4(1.0, 1.0, 1.0, vAlpha * (1.0 - dist*2.0));
+                    vec4 tex = texture2D(starTexture, gl_PointCoord);
+                    if (tex.a < 0.01) discard;
+                    gl_FragColor = vec4(tex.rgb, tex.a * vAlpha);
                 }
             `,
-            transparent: true,
-            depthWrite: false,
+            transparent: true, depthWrite: false,
             blending: THREE.AdditiveBlending
         });
 
-        this.starfield = new THREE.Points(geometry, this.starMat);
-        this.scene.add(this.starfield);
-        this.particleGroups.push(this.starfield);
+        const stars = new THREE.Points(geometry, this.starMat);
+        this.scene.add(stars);
+        this.particleGroups.push(stars);
     }
 
-    createSpaceDust() {
-        const dustCount = 3000;
+    // ── Layer 1: Mid-field cool-blue star particles (medium parallax) ──
+    createMidStarLayer() {
+        const count = 7000;
         const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(dustCount * 3);
-        const phases = new Float32Array(dustCount);
+        const positions = new Float32Array(count * 3);
+        const phases    = new Float32Array(count);
+        const sizes     = new Float32Array(count);
 
-        for (let i = 0; i < dustCount; i++) {
-            positions[i * 3] = (Math.random() - 0.5) * 3000; // Tighter cluster
-            positions[i * 3 + 1] = (Math.random() - 0.5) * 3000;
-            positions[i * 3 + 2] = (Math.random() - 0.5) * 3000;
+        for (let i = 0; i < count; i++) {
+            positions[i * 3]     = (Math.random() - 0.5) * 9000;
+            positions[i * 3 + 1] = (Math.random() - 0.5) * 9000;
+            positions[i * 3 + 2] = (Math.random() - 0.5) * 9000;
             phases[i] = Math.random() * Math.PI * 2;
+            sizes[i]  = Math.random() * 1.2 + 0.3;
         }
 
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
+        geometry.setAttribute('phase',    new THREE.BufferAttribute(phases,    1));
+        geometry.setAttribute('size',     new THREE.BufferAttribute(sizes,     1));
 
-        this.dustMat = new THREE.ShaderMaterial({
-            uniforms: { time: { value: 0 } },
+        // Cool blue star sprite (mid/distant stars = cooler, blue-white)
+        const midSprite = this.generateStarSprite([0.78,0.88,1], [0.4,0.55,1.0], 64);
+
+        this.midStarMat = new THREE.ShaderMaterial({
+            uniforms: {
+                time:        { value: 0 },
+                starTexture: { value: midSprite }
+            },
             vertexShader: `
                 uniform float time;
                 attribute float phase;
+                attribute float size;
+                varying float vAlpha;
                 void main() {
-                    vec3 pos = position;
-                    // Faster swirling motion for inner dust
-                    pos.x += sin(time * 0.15 + phase) * 250.0;
-                    pos.y += cos(time * 0.12 + phase) * 250.0;
-                    pos.z += sin(time * 0.18 - phase) * 250.0;
-                    
-                    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
-                    gl_PointSize = 4.0 * (300.0 / -mvPosition.z);
-                    gl_Position = projectionMatrix * mvPosition;
+                    vAlpha = 0.35 + 0.25 * sin(time * 1.2 + phase);
+                    vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
+                    gl_PointSize = size * (380.0 / -mvPos.z);
+                    gl_Position  = projectionMatrix * mvPos;
                 }
             `,
             fragmentShader: `
+                uniform sampler2D starTexture;
+                varying float vAlpha;
                 void main() {
-                    float dist = length(gl_PointCoord - vec2(0.5));
-                    if (dist > 0.5) discard;
-                    // 0x88bbff equivalent roughly vec4(0.53, 0.73, 1.0)
-                    gl_FragColor = vec4(0.53, 0.73, 1.0, 0.15 * (1.0 - dist*2.0)); 
+                    vec4 tex = texture2D(starTexture, gl_PointCoord);
+                    if (tex.a < 0.01) discard;
+                    gl_FragColor = vec4(tex.rgb, tex.a * vAlpha * 0.75);
                 }
             `,
-            transparent: true,
-            depthWrite: false,
+            transparent: true, depthWrite: false,
             blending: THREE.AdditiveBlending
         });
 
-        this.spaceDust = new THREE.Points(geometry, this.dustMat);
-        this.scene.add(this.spaceDust);
-        this.particleGroups.push(this.spaceDust);
+        const mid = new THREE.Points(geometry, this.midStarMat);
+        this.scene.add(mid);
+        this.particleGroups.push(mid);
     }
 
-    createGalaxy() {
-        const particleCount = 20000;
-        const geometry = new THREE.BufferGeometry();
-        const positions = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
+    // ── Layer 0: Milky Way inverted sphere (far background, slowest) ──
+    createMilkyWayLayer() {
+        // Large inverted sphere — camera is inside, seeing the inner surface
+        const geometry = new THREE.SphereGeometry(5000, 64, 48);
+        geometry.scale(-1, 1, 1); // flip normals inward
 
-        // Core to Edge color gradient
-        const colorInside = new THREE.Color(0xffaa88);
-        const colorOutside = new THREE.Color(0x4466ff);
-
-        const params = { radius: 4000, spin: 1, randomness: 0.2, randomnessPower: 3, branches: 4 };
-
-        for (let i = 0; i < particleCount; i++) {
-            const i3 = i * 3;
-            const radius = Math.random() * params.radius;
-            const spinAngle = radius * params.spin;
-            const branchAngle = (i % params.branches) / params.branches * Math.PI * 2;
-
-            const randomX = Math.pow(Math.random(), params.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * params.randomness * radius;
-            const randomY = Math.pow(Math.random(), params.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * params.randomness * radius * 0.2; // Flattened Y
-            const randomZ = Math.pow(Math.random(), params.randomnessPower) * (Math.random() < 0.5 ? 1 : -1) * params.randomness * radius;
-
-            positions[i3] = Math.cos(branchAngle + spinAngle) * radius + randomX;
-            positions[i3 + 1] = randomY - 800; // Place below the planetary orbital plane
-            positions[i3 + 2] = Math.sin(branchAngle + spinAngle) * radius + randomZ;
-
-            const mixColor = colorInside.clone().lerp(colorOutside, radius / params.radius);
-            colors[i3] = mixColor.r;
-            colors[i3 + 1] = mixColor.g;
-            colors[i3 + 2] = mixColor.b;
-        }
-
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-        const material = new THREE.PointsMaterial({
-            size: 8,
-            sizeAttenuation: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending,
-            vertexColors: true,
+        this.milkyWayMat = new THREE.MeshBasicMaterial({
             transparent: true,
-            opacity: 0.4
+            opacity: 0,      // Reveals once texture is decoded
+            depthWrite: false,
         });
 
-        this.galaxy = new THREE.Points(geometry, material);
-        this.galaxy.rotation.x = 0.2; // Slight tilt
-        this.scene.add(this.galaxy);
-        this.particleGroups.push(this.galaxy);
+        this.milkyWaySphere = new THREE.Mesh(geometry, this.milkyWayMat);
+        // Tilt slightly for a more dramatic galaxy angle
+        this.milkyWaySphere.rotation.x = 0.18;
+        this.scene.add(this.milkyWaySphere);
+        this.particleGroups.unshift(this.milkyWaySphere); // Always index 0
+
+        const loader = new THREE.TextureLoader();
+        loader.load(TEXTURES.milkyway, (texture) => {
+            texture.colorSpace = THREE.SRGBColorSpace;
+            this.milkyWayMat.map     = texture;
+            this.milkyWayMat.opacity = 0.88;
+            this.milkyWayMat.needsUpdate = true;
+        });
     }
 
     animateShootingStars() {
@@ -903,20 +937,25 @@ class SolarSystemApp {
         }
 
         // Particle System Dynamics (Twinkling, Drifting, and Mouse Parallax)
-        if (this.starMat) this.starMat.uniforms.time.value += delta;
-        if (this.dustMat) this.dustMat.uniforms.time.value += delta;
+        if (this.starMat)    this.starMat.uniforms.time.value    += delta;
+        if (this.midStarMat) this.midStarMat.uniforms.time.value += delta;
 
-        const parallaxX = this.mouse.x * 30;
-        const parallaxY = this.mouse.y * 30;
+        const parallaxX = this.mouse.x * 28;
+        const parallaxY = this.mouse.y * 28;
 
         if (this.particleGroups) {
             this.particleGroups.forEach((group, index) => {
-                const depthFactor = (index + 1) * 0.15;
-                // Parallax easing
-                group.position.x += (parallaxX * depthFactor - group.position.x) * 0.05;
-                group.position.y += (parallaxY * depthFactor - group.position.y) * 0.05;
-                // Subtle global spin based on depth
-                group.rotation.y -= 0.00005 * (index + 1);
+                if (index === 0) {
+                    // Milky Way sphere: slow auto-spin + mouse tilt only (no position shift)
+                    group.rotation.y -= 0.000038;
+                    group.rotation.x += (this.mouse.y * 0.00035 - (group.rotation.x - 0.18)) * 0.018;
+                } else {
+                    // Particle layers: differential position + rotation parallax
+                    const depthFactor = index * 0.22;
+                    group.position.x += (parallaxX * depthFactor - group.position.x) * 0.045;
+                    group.position.y += (parallaxY * depthFactor - group.position.y) * 0.045;
+                    group.rotation.y -= 0.000042 * index;
+                }
             });
         }
 
