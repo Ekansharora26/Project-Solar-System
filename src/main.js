@@ -4,10 +4,7 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import './style.css';
-
-gsap.registerPlugin(ScrollTrigger);
 
 // --- CONFIGURATION ---
 const TEXTURES = {
@@ -50,7 +47,7 @@ class SolarSystemApp {
         this.renderer = new THREE.WebGLRenderer({ antialias: true, logarithmicDepthBuffer: true });
         this.renderer.setSize(this.width, this.height);
         this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        this.renderer.outputEncoding = THREE.sRGBEncoding;
+        this.renderer.outputColorSpace = THREE.SRGBColorSpace;
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.0;
         this.renderer.shadowMap.enabled = true; // Enable shadow mapping
@@ -273,7 +270,7 @@ class SolarSystemApp {
 
     animateShootingStars() {
         const spawnShootingStar = () => {
-            if (Math.random() > 0.4) {
+            if (Math.random() < 0.4) {
                 setTimeout(spawnShootingStar, Math.random() * 4000 + 1000);
                 return;
             }
@@ -351,6 +348,12 @@ class SolarSystemApp {
         });
 
         this.sun = new THREE.Mesh(sunGeo, sunMat);
+        this.sun.userData = {
+            name: 'Sun', type: 'Star',
+            realRadius: '696,340 km', realDistance: '0 km',
+            orbitalPeriod: 'Galactic Center', day: '25–35 days',
+            desc: 'The bright star at the center of our Solar System, containing 99.86% of all the mass in the system.'
+        };
         this.scene.add(this.sun);
 
         // Optional: Keep the subtle corona glow if desired for edge softening
@@ -423,7 +426,21 @@ class SolarSystemApp {
         mesh.userData = { ...data, type: 'planet' };
 
         if (data.hasRings) {
-            const ringGeo = new THREE.RingGeometry(data.size * 1.6, data.size * 2.8, 64);
+            const innerR = data.size * 1.6;
+            const outerR = data.size * 2.8;
+            const ringGeo = new THREE.RingGeometry(innerR, outerR, 64);
+
+            // Fix UV mapping: Three.js RingGeometry UVs don't map radial textures correctly by default
+            const posAttr = ringGeo.attributes.position;
+            const uvAttr = ringGeo.attributes.uv;
+            for (let i = 0; i < posAttr.count; i++) {
+                const x = posAttr.getX(i);
+                const z = posAttr.getZ(i);
+                const r = Math.sqrt(x * x + z * z);
+                uvAttr.setXY(i, (r - innerR) / (outerR - innerR), uvAttr.getY(i));
+            }
+            uvAttr.needsUpdate = true;
+
             const ringTex = loader.load(TEXTURES.saturnRing);
             const ringMat = new THREE.MeshStandardMaterial({
                 map: ringTex, side: THREE.DoubleSide, transparent: true, opacity: 0.9, roughness: 1, metalness: 0
@@ -603,7 +620,7 @@ class SolarSystemApp {
     focusPlanet(obj) {
         this.focusedObject = obj;
         const isSun = obj === this.sun;
-        const data = isSun ? { name: 'Sun', type: 'Star', realRadius: '696,340 km', realDistance: '0 km', orbitalPeriod: 'N/A: Galactic Center', day: '25-35 days', desc: 'The bright star at the center of our solar system.' } : obj.userData;
+        const data = obj.userData; // Sun.userData is now consistently set in createSun()
 
         document.getElementById('info-name').textContent = data.name;
         document.getElementById('info-radius').textContent = data.realRadius || '-';
@@ -689,6 +706,22 @@ class SolarSystemApp {
             this.mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
             this.handleHover();
         });
+
+        // Mobile touch support
+        window.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            this.mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+            this.handleHover();
+        }, { passive: true });
+
+        window.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            this.mouse.x = (touch.clientX / window.innerWidth) * 2 - 1;
+            this.mouse.y = -(touch.clientY / window.innerHeight) * 2 + 1;
+            this.handleHover();
+            if (this.hoveredObject) this.focusPlanet(this.hoveredObject);
+        }, { passive: true });
 
         window.addEventListener('click', () => {
             if (this.hoveredObject) this.focusPlanet(this.hoveredObject);

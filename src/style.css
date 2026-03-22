@@ -40,33 +40,6 @@ body {
   z-index: 1;
 }
 
-/* Scroll Journey Container */
-#scroll-container {
-  position: relative;
-  width: 100%;
-  z-index: 5; /* Sit between canvas and interactions/menus if needed */
-  pointer-events: none;
-}
-
-.scroll-section {
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 15vw;
-}
-
-.scroll-section h2 {
-  font-family: var(--font-title);
-  font-size: 4rem;
-  font-weight: 800;
-  color: rgba(255, 255, 255, 0.05);
-  text-transform: uppercase;
-  letter-spacing: 12px;
-  user-select: none;
-  pointer-events: none;
-}
-
 /* UI Structure */
 #ui-container {
   position: fixed;
