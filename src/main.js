@@ -98,11 +98,24 @@ class SolarSystemApp {
         this.createGalaxy();
         this.animateShootingStars();
 
+        THREE.DefaultLoadingManager.onProgress = (url, loaded, total) => {
+            const pct = Math.round((loaded / total) * 100);
+            const bar = document.getElementById('progress-bar');
+            const pctEl = document.getElementById('progress-pct');
+            if (bar) bar.style.width = pct + '%';
+            if (pctEl) pctEl.textContent = pct + '%';
+        };
+
         THREE.DefaultLoadingManager.onLoad = () => {
+            const bar = document.getElementById('progress-bar');
+            const pctEl = document.getElementById('progress-pct');
+            if (bar) bar.style.width = '100%';
+            if (pctEl) pctEl.textContent = '100%';
             gsap.to('#loading-screen', {
-                opacity: 0, duration: 1.5, delay: 0.5, onComplete: () => {
+                opacity: 0, duration: 1, delay: 0.5, onComplete: () => {
                     document.getElementById('loading-screen').style.display = 'none';
                     this.initIntroAnimation();
+                    this.showInstructionOverlay();
                 }
             });
         };
@@ -567,6 +580,16 @@ class SolarSystemApp {
         });
     }
 
+    showInstructionOverlay() {
+        const overlay = document.getElementById('instruction-overlay');
+        if (!overlay) return;
+        gsap.fromTo(overlay, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out' });
+        setTimeout(() => {
+            overlay.classList.add('fade-out');
+            setTimeout(() => overlay.style.display = 'none', 900);
+        }, 3200);
+    }
+
     updateLightingWithCamera() {
         if (!this.sunLight || !this.sun) return;
 
@@ -622,6 +645,7 @@ class SolarSystemApp {
         const isSun = obj === this.sun;
         const data = obj.userData; // Sun.userData is now consistently set in createSun()
 
+        document.getElementById('info-type').textContent = data.type || 'Celestial Body';
         document.getElementById('info-name').textContent = data.name;
         document.getElementById('info-radius').textContent = data.realRadius || '-';
         document.getElementById('info-distance').textContent = data.realDistance || '-';
@@ -736,12 +760,22 @@ class SolarSystemApp {
         });
 
         document.getElementById('close-info').addEventListener('click', () => this.resetView());
+        document.getElementById('back-btn').addEventListener('click', () => this.resetView());
+
+        // Controls panel toggle
+        document.getElementById('nav-controls-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            document.getElementById('controls-panel').classList.toggle('hidden');
+        });
+        document.getElementById('close-controls').addEventListener('click', () => {
+            document.getElementById('controls-panel').classList.add('hidden');
+        });
 
         document.querySelectorAll('.speed-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
-                if (!this.focusedObject) { // Prevents overriding the cinematic slow-down if a planet is actively focused
+                if (!this.focusedObject) {
                     this.simulationSpeed = parseFloat(btn.dataset.speed);
                 }
             });
@@ -760,8 +794,8 @@ class SolarSystemApp {
             const hexColor = '#' + data.color.toString(16).padStart(6, '0');
 
             btn.innerHTML = `
-                <span class="planet-icon" style="background: ${hexColor}; box-shadow: 0 0 5px ${hexColor}"></span>
-                ${data.name}
+                <span class="planet-icon" style="background: radial-gradient(circle at 35% 35%, ${hexColor}dd, ${hexColor}66); box-shadow: 0 0 10px ${hexColor}88"></span>
+                <span class="planet-btn-name">${data.name}</span>
             `;
 
             btn.addEventListener('click', () => this.handlePlanetClick(data.name));

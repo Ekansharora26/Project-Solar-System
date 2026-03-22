@@ -4,90 +4,134 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cosmos3D - Solar System Explorer</title>
-    <meta name="description" content="A premium 3D Solar System simulation using Three.js." />
+    <title>SolarX — Interactive 3D Solar System</title>
+    <meta name="description" content="An immersive, interactive 3D Solar System experience built with Three.js." />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Outfit:wght@300;500;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
   </head>
   <body>
+
+    <!-- Loading Screen -->
     <div id="loading-screen">
-      <div class="loader-content">
-        <div class="ring-spinner"></div>
-        <h2>Initializing Cosmos Explorer</h2>
-        <p>Syncing with interplanetary data networks...</p>
+      <div class="loader-inner">
+        <div class="loader-logo">Solar<span>X</span></div>
+        <p class="loader-subtitle">Initializing the Universe</p>
+        <div class="loader-track">
+          <div class="loader-bar" id="progress-bar"></div>
+        </div>
+        <span class="loader-pct" id="progress-pct">0%</span>
+      </div>
+    </div>
+
+    <!-- Instruction Overlay -->
+    <div id="instruction-overlay">
+      <div class="instruction-pill">
+        <span class="instruction-icon">✦</span>
+        <span>Drag to rotate</span>
+        <span class="instruction-sep"></span>
+        <span>Scroll to zoom</span>
+        <span class="instruction-sep"></span>
+        <span>Click planets</span>
       </div>
     </div>
 
     <div id="app">
+      <!-- Canvas -->
       <div id="canvas-container"></div>
-      
-      <!-- UI Overlay -->
+
+      <!-- UI Layer -->
       <div id="ui-container">
-        <header>
-          <h1>Cosmos<span>3D</span></h1>
-        </header>
 
-        <div id="planet-info" class="glass-panel info-panel hidden">
-          <h2 id="info-name">Earth</h2>
-          <div class="stats-grid">
-            <div class="stat">
-              <span class="label">Radius</span>
-              <span class="value" id="info-radius">6,371 km</span>
-            </div>
-            <div class="stat">
-              <span class="label">Dist. to Sun</span>
-              <span class="value" id="info-distance">149.6M km</span>
-            </div>
-            <div class="stat">
-              <span class="label">Orbital Period</span>
-              <span class="value" id="info-orbit">365 Days</span>
-            </div>
-            <div class="stat">
-              <span class="label">Day Length</span>
-              <span class="value" id="info-day">24h</span>
-            </div>
+        <!-- Navbar -->
+        <nav id="navbar">
+          <div class="nav-logo">Solar<span>X</span></div>
+          <ul class="nav-links">
+            <li><a href="#" class="nav-link active">Home</a></li>
+            <li><a href="#" class="nav-link" id="nav-controls-btn">Controls</a></li>
+            <li>
+              <a href="https://github.com" target="_blank" class="nav-link nav-github">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+                GitHub
+              </a>
+            </li>
+          </ul>
+        </nav>
+
+        <!-- Controls Panel (toggled by nav) -->
+        <div id="controls-panel" class="hidden">
+          <div class="cp-header">
+            <h3>System Controls</h3>
+            <button class="icon-btn" id="close-controls">✕</button>
           </div>
-          <p id="info-desc">Our home planet is the only place we know of so far that’s inhabited by living things.</p>
-          <button id="close-info" class="btn-clear">Back to System View</button>
-        </div>
-
-        <div id="planet-selector" class="glass-panel">
-          <!-- Dynamically populated via JS -->
-        </div>
-
-        <div class="controls-panel glass-panel">
-          <h3>System Controls</h3>
-          <div class="control-group">
-            <label class="switch">
-              <input type="checkbox" id="toggle-orbits" checked>
-              <span class="slider"></span>
-            </label>
+          <div class="control-row">
             <span>Orbit Rings</span>
-          </div>
-          <div class="control-group">
-            <label class="switch">
-              <input type="checkbox" id="toggle-cinematic">
-              <span class="slider"></span>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-orbits" checked>
+              <span class="toggle-track"></span>
             </label>
-            <span>Cinematic Mode</span>
           </div>
-          
-          <div class="speed-control">
-            <span class="label">Simulation Speed</span>
+          <div class="control-row">
+            <span>Cinematic Mode</span>
+            <label class="toggle">
+              <input type="checkbox" id="toggle-cinematic">
+              <span class="toggle-track"></span>
+            </label>
+          </div>
+          <div class="speed-section">
+            <span class="speed-label">Simulation Speed</span>
             <div class="speed-btns">
-              <button class="speed-btn" data-speed="0.1">Slow</button>
-              <button class="speed-btn active" data-speed="1">Real</button>
-              <button class="speed-btn" data-speed="10">Fast</button>
+              <button class="speed-btn" data-speed="0.1">0.1×</button>
+              <button class="speed-btn active" data-speed="1">1×</button>
+              <button class="speed-btn" data-speed="10">10×</button>
             </div>
           </div>
         </div>
 
+        <!-- Planet Info Panel (right side) -->
+        <div id="planet-info" class="info-panel hidden">
+          <div class="info-header">
+            <span class="info-badge" id="info-type">Terrestrial</span>
+            <button class="icon-btn" id="close-info">✕</button>
+          </div>
+          <h2 id="info-name">Earth</h2>
+          <div class="info-rule"></div>
+          <div class="stats-grid">
+            <div class="stat-card">
+              <span class="stat-label">Radius</span>
+              <span class="stat-value" id="info-radius">6,371 km</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Dist. to Sun</span>
+              <span class="stat-value" id="info-distance">149.6M km</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Orbital Period</span>
+              <span class="stat-value" id="info-orbit">365 Days</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Day Length</span>
+              <span class="stat-value" id="info-day">24h</span>
+            </div>
+          </div>
+          <p id="info-desc" class="info-desc">Our home planet.</p>
+          <button id="back-btn" class="btn-back">← Back to System</button>
+        </div>
+
+        <!-- Tooltip -->
         <div id="tooltip" class="tooltip">
           <span id="tooltip-text">Earth</span>
         </div>
+
+      </div><!-- /ui-container -->
+
+      <!-- Planet Selector Bar -->
+      <div id="planet-selector-bar">
+        <div id="planet-selector"><!-- populated by JS --></div>
       </div>
-    </div>
+
+    </div><!-- /app -->
+
     <script type="module" src="/src/main.js"></script>
   </body>
 </html>
