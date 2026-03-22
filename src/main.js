@@ -5,6 +5,7 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass';
 import gsap from 'gsap';
 import './style.css';
+import './mobile.css';
 
 // --- CONFIGURATION ---
 const TEXTURES = {

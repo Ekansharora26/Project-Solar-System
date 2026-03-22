@@ -1,0 +1,206 @@
+/* ====================================================
+   SOLARX — MOBILE RESPONSIVE STYLES  (mobile.css)
+   Breakpoints:  ≤ 768px  |  ≤ 480px  |  ≤ 360px
+   ==================================================== */
+
+/* ══════════════════════════════════════════════════
+   TABLETS & LARGE PHONES  (≤ 768px)
+   ══════════════════════════════════════════════════ */
+@media screen and (max-width: 768px) {
+
+  /* ── Loading Screen ── */
+  .loader-inner  { width: 240px; }
+  .loader-logo   { font-size: 2.6rem; }
+  .loader-subtitle { font-size: 0.65rem; letter-spacing: 3.5px; margin-bottom: 30px; }
+
+  /* ── Instruction Overlay ── */
+  .instruction-pill {
+    gap: 14px;
+    padding: 12px 22px;
+    font-size: 0.74rem;
+  }
+
+  /* ── Navbar ── */
+  #navbar { padding: 0 18px; height: 54px; }
+  .nav-logo  { font-size: 1.35rem; }
+  .nav-links { gap: 0; }
+  .nav-link  { padding: 6px 10px; font-size: 0.76rem; }
+  .nav-link::after { display: none; }
+
+  /* ── Controls Panel ── */
+  #controls-panel {
+    top: 62px !important;
+    right: 12px !important;
+    left: auto;
+    width: 236px !important;
+  }
+
+  /* ── Planet Info Panel → Bottom Sheet on mobile ──
+       Desktop: slides in from the right (translateX)
+       Mobile:  slides up from the bottom (translateY)  */
+  .info-panel {
+    position: fixed !important;
+    inset: auto 0 0 0 !important;
+    width: 100% !important;
+    max-height: 78vh;
+    overflow-y: auto;
+    border-radius: 22px 22px 0 0 !important;
+    padding: 22px 20px calc(24px + env(safe-area-inset-bottom)) !important;
+    /* Reset desktop vertical centering */
+    top: auto !important;
+    right: 0 !important;
+    transform: translateY(0) !important;
+    transition: transform 0.48s cubic-bezier(0.16,1,0.3,1),
+                opacity   0.48s ease,
+                filter    0.48s ease !important;
+  }
+
+  .info-panel.hidden {
+    transform: translateY(110%) !important;  /* slide down off-screen */
+    opacity: 1 !important;                   /* no fade — pure slide */
+    filter: none !important;
+  }
+
+  /* Scrollbar inside info panel */
+  .info-panel::-webkit-scrollbar { width: 3px; }
+  .info-panel::-webkit-scrollbar-thumb { background: rgba(59,130,246,0.4); border-radius: 3px; }
+
+  /* Drag handle hint */
+  .info-panel::before {
+    content: '';
+    display: block;
+    width: 36px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 4px;
+    margin: 0 auto 18px;
+  }
+
+  /* ── Planet Selector Bar ── */
+  #planet-selector-bar {
+    padding: 0 12px calc(16px + env(safe-area-inset-bottom));
+  }
+  #planet-selector { justify-content: flex-start; }
+
+  .planet-btn {
+    padding: 10px 12px;
+    min-width: 66px;
+    border-radius: 12px;
+    gap: 6px;
+  }
+  .planet-icon       { width: 22px; height: 22px; }
+  .planet-btn-name   { font-size: 0.63rem; }
+}
+
+
+/* ══════════════════════════════════════════════════
+   PHONES  (≤ 480px)
+   ══════════════════════════════════════════════════ */
+@media screen and (max-width: 480px) {
+
+  /* ── Loading Screen ── */
+  .loader-logo     { font-size: 2.1rem; }
+  .loader-subtitle { font-size: 0.6rem; letter-spacing: 3px; margin-bottom: 26px; }
+  .loader-inner    { width: 210px; }
+
+  /* ── Instruction Overlay ── */
+  .instruction-pill {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px 16px;
+    padding: 12px 18px;
+    font-size: 0.7rem;
+    border-radius: 16px;
+    max-width: 85vw;
+    text-align: center;
+  }
+  .instruction-sep { display: none; }
+
+  /* ── Navbar ── */
+  #navbar {
+    padding: 0 14px;
+    height: 50px;
+  }
+  .nav-logo { font-size: 1.2rem; }
+
+  /* Hide "Home" link — too cramped on phones */
+  .nav-link.active { display: none; }
+
+  .nav-link  { padding: 6px 8px; font-size: 0.72rem; }
+
+  /* ── Controls Panel ── */
+  #controls-panel {
+    top: 58px !important;
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+  }
+
+  /* ── Planet Info Panel ── */
+  .info-panel {
+    max-height: 72vh;
+    padding: 18px 16px calc(20px + env(safe-area-inset-bottom)) !important;
+  }
+
+  #info-name   { font-size: 1.9rem !important; }
+  .info-badge  { font-size: 0.56rem; }
+  .stats-grid  { gap: 8px !important; }
+  .stat-card   { padding: 9px !important; }
+  .stat-label  { font-size: 0.55rem; }
+  .stat-value  { font-size: 0.78rem !important; }
+  .info-desc   { font-size: 0.76rem; }
+  .btn-back    { font-size: 0.74rem; padding: 10px; }
+
+  /* ── Planet Selector Bar ── */
+  #planet-selector-bar {
+    padding: 0 8px calc(12px + env(safe-area-inset-bottom));
+  }
+  .planet-btn {
+    min-width: 58px;
+    padding: 9px 10px;
+    gap: 5px;
+  }
+  .planet-icon     { width: 20px; height: 20px; }
+  .planet-btn-name { font-size: 0.58rem; }
+}
+
+
+/* ══════════════════════════════════════════════════
+   TINY PHONES  (≤ 360px)
+   ══════════════════════════════════════════════════ */
+@media screen and (max-width: 360px) {
+
+  /* ── Navbar ── */
+  #navbar { padding: 0 10px; }
+  .nav-logo { font-size: 1.1rem; }
+  .nav-link { padding: 5px 7px; font-size: 0.68rem; }
+
+  /* ── Loading Screen ── */
+  .loader-logo { font-size: 1.85rem; }
+  .loader-inner { width: 190px; }
+
+  /* ── Planet Selector ── */
+  .planet-btn    { min-width: 52px; padding: 8px 8px; }
+  .planet-icon   { width: 18px; height: 18px; }
+  .planet-btn-name { font-size: 0.55rem; }
+
+  /* ── Info Panel ── */
+  .info-panel { max-height: 68vh; }
+  #info-name  { font-size: 1.7rem !important; }
+}
+
+
+/* ══════════════════════════════════════════════════
+   TOUCH DEVICE UTILITIES
+   ══════════════════════════════════════════════════ */
+@media (hover: none) and (pointer: coarse) {
+
+  /* Disable hover-scale transforms on touch — prevents stuck states */
+  .planet-btn:hover     { transform: none; border-color: var(--glass-border); background: var(--glass-bg); }
+  .planet-btn.active    { transform: translateY(-4px); }
+  .nav-link:hover       { background: transparent; }
+  .stat-card:hover      { background: rgba(255,255,255,0.03); border-color: var(--glass-border); }
+  .btn-back:hover       { transform: none; }
+
+  /* Increase tap target size */
+  .speed-btn { padding: 10px; }
+  .icon-btn  { width: 32px; height: 32px; }
+}

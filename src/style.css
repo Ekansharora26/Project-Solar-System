@@ -288,16 +288,4 @@ input:checked + .toggle-track::before { transform: translateX(17px); }
 .planet-btn:hover .planet-btn-name,
 .planet-btn.active .planet-btn-name { color: var(--text-1); }
 
-/* ─── RESPONSIVE ─── */
-@media (max-width: 768px) {
-  #navbar { padding: 0 18px; }
-  .nav-link { padding: 6px 10px; font-size: 0.75rem; }
-  .info-panel {
-    right: 12px; left: 12px; width: auto;
-    top: auto; bottom: 110px;
-    transform: translateY(0);
-  }
-  .info-panel.hidden { transform: translateY(20px); }
-  #planet-selector-bar { padding: 0 12px 14px; }
-  #controls-panel { right: 12px; top: 68px; width: 234px; }
-}
+
