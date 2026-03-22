@@ -9,20 +9,20 @@ import './mobile.css';
 
 // --- CONFIGURATION ---
 const TEXTURES = {
-    sun:        '/textures/sun.jpg',
-    mercury:    '/textures/mercury.jpg',
-    venus:      '/textures/venus.jpg',
-    earth:      '/textures/earth_day.jpg',
+    sun: '/textures/sun.jpg',
+    mercury: '/textures/mercury.jpg',
+    venus: '/textures/venus.jpg',
+    earth: '/textures/earth_day.jpg',
     earthNight: '/textures/earth_night.jpg',
-    mars:       '/textures/mars.jpg',
-    jupiter:    '/textures/jupiter.jpg',
-    saturn:     '/textures/saturn.jpg',
+    mars: '/textures/mars.jpg',
+    jupiter: '/textures/jupiter.jpg',
+    saturn: '/textures/saturn.jpg',
     saturnRing: '/textures/saturn_ring.png',
-    uranus:     '/textures/uranus.jpg',
-    neptune:    '/textures/neptune.jpg',
-    moon:       '/textures/moon.jpg',
-    stars:      '/textures/stars.jpg',
-    milkyway:   '/textures/milkyway.jpg'
+    uranus: '/textures/uranus.jpg',
+    neptune: '/textures/neptune.jpg',
+    moon: '/textures/moon.jpg',
+    stars: '/textures/stars.jpg',
+    milkyway: '/textures/milkyway.jpg'
 };
 
 const PLANETS_DATA = [
@@ -125,28 +125,28 @@ class SolarSystemApp {
 
     // ─── Generate a soft radial glow star sprite via Canvas ───
     // Replaces external PNG — same effect, zero network dependency
-    generateStarSprite(innerColor = [1,1,1], outerColor = [0.55,0.7,1], size = 128) {
+    generateStarSprite(innerColor = [1, 1, 1], outerColor = [0.55, 0.7, 1], size = 128) {
         const canvas = document.createElement('canvas');
-        canvas.width  = size;
+        canvas.width = size;
         canvas.height = size;
         const ctx = canvas.getContext('2d');
         const c = size / 2;
 
         // Core bright point
         const core = ctx.createRadialGradient(c, c, 0, c, c, c * 0.12);
-        core.addColorStop(0,   `rgba(255,255,255,1)`);
-        core.addColorStop(1,   `rgba(255,255,255,0)`);
+        core.addColorStop(0, `rgba(255,255,255,1)`);
+        core.addColorStop(1, `rgba(255,255,255,0)`);
         ctx.fillStyle = core;
         ctx.fillRect(0, 0, size, size);
 
         // Soft glow halo
-        const [r2,g2,b2] = outerColor.map(v => Math.round(v*255));
+        const [r2, g2, b2] = outerColor.map(v => Math.round(v * 255));
         const glow = ctx.createRadialGradient(c, c, 0, c, c, c);
-        glow.addColorStop(0.0,  `rgba(255,255,255,0.95)`);
-        glow.addColorStop(0.06, `rgba(${Math.round(innerColor[0]*255)},${Math.round(innerColor[1]*255)},${Math.round(innerColor[2]*255)},0.8)`);
+        glow.addColorStop(0.0, `rgba(255,255,255,0.95)`);
+        glow.addColorStop(0.06, `rgba(${Math.round(innerColor[0] * 255)},${Math.round(innerColor[1] * 255)},${Math.round(innerColor[2] * 255)},0.8)`);
         glow.addColorStop(0.25, `rgba(${r2},${g2},${b2},0.35)`);
         glow.addColorStop(0.55, `rgba(${r2},${g2},${b2},0.08)`);
-        glow.addColorStop(1.0,  `rgba(0,0,0,0)`);
+        glow.addColorStop(1.0, `rgba(0,0,0,0)`);
         ctx.globalCompositeOperation = 'lighter';
         ctx.fillStyle = glow;
         ctx.fillRect(0, 0, size, size);
@@ -154,16 +154,16 @@ class SolarSystemApp {
         // Optional 4-point diffraction spike (makes bright stars look real)
         ctx.globalCompositeOperation = 'lighter';
         ctx.strokeStyle = `rgba(255,255,255,0.18)`;
-        ctx.lineWidth   = 1;
-        [[c,0,c,size],[0,c,size,c]].forEach(([x1,y1,x2,y2]) => {
-            const spike = ctx.createLinearGradient(x1,y1,x2,y2);
-            spike.addColorStop(0,   'rgba(255,255,255,0)');
-            spike.addColorStop(0.45,'rgba(255,255,255,0.22)');
+        ctx.lineWidth = 1;
+        [[c, 0, c, size], [0, c, size, c]].forEach(([x1, y1, x2, y2]) => {
+            const spike = ctx.createLinearGradient(x1, y1, x2, y2);
+            spike.addColorStop(0, 'rgba(255,255,255,0)');
+            spike.addColorStop(0.45, 'rgba(255,255,255,0.22)');
             spike.addColorStop(0.5, 'rgba(255,255,255,0.55)');
-            spike.addColorStop(0.55,'rgba(255,255,255,0.22)');
-            spike.addColorStop(1,   'rgba(255,255,255,0)');
+            spike.addColorStop(0.55, 'rgba(255,255,255,0.22)');
+            spike.addColorStop(1, 'rgba(255,255,255,0)');
             ctx.strokeStyle = spike;
-            ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+            ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke();
         });
 
         return new THREE.CanvasTexture(canvas);
@@ -174,27 +174,27 @@ class SolarSystemApp {
         const count = 3500;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(count * 3);
-        const phases    = new Float32Array(count);
-        const sizes     = new Float32Array(count);
+        const phases = new Float32Array(count);
+        const sizes = new Float32Array(count);
 
         for (let i = 0; i < count; i++) {
-            positions[i * 3]     = (Math.random() - 0.5) * 7000;
+            positions[i * 3] = (Math.random() - 0.5) * 7000;
             positions[i * 3 + 1] = (Math.random() - 0.5) * 7000;
             positions[i * 3 + 2] = (Math.random() - 0.5) * 7000;
             phases[i] = Math.random() * Math.PI * 2;
-            sizes[i]  = Math.random() * 2.2 + 0.6;
+            sizes[i] = Math.random() * 2.2 + 0.6;
         }
 
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('phase',    new THREE.BufferAttribute(phases,    1));
-        geometry.setAttribute('size',     new THREE.BufferAttribute(sizes,     1));
+        geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
         // Warm white star sprite (near stars = older, hotter, yellow-white)
-        const nearSprite = this.generateStarSprite([1,0.97,0.88], [0.6,0.7,1.0], 128);
+        const nearSprite = this.generateStarSprite([1, 0.97, 0.88], [0.6, 0.7, 1.0], 128);
 
         this.starMat = new THREE.ShaderMaterial({
             uniforms: {
-                time:        { value: 0 },
+                time: { value: 0 },
                 starTexture: { value: nearSprite }
             },
             vertexShader: `
@@ -236,27 +236,27 @@ class SolarSystemApp {
         const count = 7000;
         const geometry = new THREE.BufferGeometry();
         const positions = new Float32Array(count * 3);
-        const phases    = new Float32Array(count);
-        const sizes     = new Float32Array(count);
+        const phases = new Float32Array(count);
+        const sizes = new Float32Array(count);
 
         for (let i = 0; i < count; i++) {
-            positions[i * 3]     = (Math.random() - 0.5) * 9000;
+            positions[i * 3] = (Math.random() - 0.5) * 9000;
             positions[i * 3 + 1] = (Math.random() - 0.5) * 9000;
             positions[i * 3 + 2] = (Math.random() - 0.5) * 9000;
             phases[i] = Math.random() * Math.PI * 2;
-            sizes[i]  = Math.random() * 1.2 + 0.3;
+            sizes[i] = Math.random() * 1.2 + 0.3;
         }
 
         geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-        geometry.setAttribute('phase',    new THREE.BufferAttribute(phases,    1));
-        geometry.setAttribute('size',     new THREE.BufferAttribute(sizes,     1));
+        geometry.setAttribute('phase', new THREE.BufferAttribute(phases, 1));
+        geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
         // Cool blue star sprite (mid/distant stars = cooler, blue-white)
-        const midSprite = this.generateStarSprite([0.78,0.88,1], [0.4,0.55,1.0], 64);
+        const midSprite = this.generateStarSprite([0.78, 0.88, 1], [0.4, 0.55, 1.0], 64);
 
         this.midStarMat = new THREE.ShaderMaterial({
             uniforms: {
-                time:        { value: 0 },
+                time: { value: 0 },
                 starTexture: { value: midSprite }
             },
             vertexShader: `
@@ -310,7 +310,7 @@ class SolarSystemApp {
         const loader = new THREE.TextureLoader();
         loader.load(TEXTURES.milkyway, (texture) => {
             texture.colorSpace = THREE.SRGBColorSpace;
-            this.milkyWayMat.map     = texture;
+            this.milkyWayMat.map = texture;
             this.milkyWayMat.opacity = 0.88;
             this.milkyWayMat.needsUpdate = true;
         });
@@ -937,7 +937,7 @@ class SolarSystemApp {
         }
 
         // Particle System Dynamics (Twinkling, Drifting, and Mouse Parallax)
-        if (this.starMat)    this.starMat.uniforms.time.value    += delta;
+        if (this.starMat) this.starMat.uniforms.time.value += delta;
         if (this.midStarMat) this.midStarMat.uniforms.time.value += delta;
 
         const parallaxX = this.mouse.x * 28;
